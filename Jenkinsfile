@@ -2,37 +2,73 @@ pipeline {
     agent any
     
     stages {
-        stage('Create docker.sh file') {
+        stage('install docker') {
             steps {
-                script {
-                    def dockerCommands = """
-                        #!/bin/bash
-                        sudo yum update -y
-                        sudo yum search docker
-                        sudo yum info docker
-                        sudo yum install -y docker
-                        sudo systemctl enable docker.service
-                        sudo systemctl start docker.service
-                        sudo systemctl status docker.service
-                        docker --version
-                        sudo yum install git -y
-                        sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-\$(uname -s)-\$(uname -m) -o /usr/local/bin/docker-compose
-                        sudo chmod +x /usr/local/bin/docker-compose
-                        docker-compose --version
-                    """
-                    writeFile file: 'docker.sh', text: dockerCommands.trim()
-                }
+                sh 'sudo yum install -y docker'
             }
         }
-        stage('Execute docker.sh') {
+        stage('start docker') {
             steps {
-                sh 'bash docker.sh'
+                sh 'sudo systemctl enable docker.service'
+            }
+        }
+        stage('status docker') {
+            steps {
+                
+                sh 'sudo systemctl status docker'
+            }
+        }
+        stage('pull image') {
+            steps {
+                sh 'sudo docker pull nginx'
+            }
+        }
+        stage('run container') {
+            steps {
+                sh 'sudo docker run -it -d -p 8000:80 nginx'
+            }
+        }
+        stage('final message') {
+            steps {
+                echo 'Welcome to nginx'
             }
         }
     }
-    post {
-        always {
-            deleteDir()
+}
+[3:47 pm, 26/03/2024] +91 86608 63293: pipeline {
+    agent any
+    
+    stages {
+        stage('install docker') {
+            steps {
+                sh 'sudo yum install -y docker'
+            }
+        }
+        stage('start docker') {
+            steps {
+                sh 'sudo systemctl enable docker.service'
+            }
+        }
+        stage('status docker') {
+            steps {
+                
+                sh 'sudo systemctl status docker'
+            }
+        }
+        stage('pull image') {
+            steps {
+                sh 'sudo docker pull nginx'
+            }
+        }
+        stage('run container') {
+            steps {
+                sh 'sudo docker run -it -d -p 8000:80 nginx'
+            }
+        }
+        stage('final message') {
+            steps {
+                echo 'Welcome to nginx'
+            }
         }
     }
 }
